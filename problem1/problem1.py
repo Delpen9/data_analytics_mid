@@ -111,7 +111,7 @@ if __name__ == '__main__':
     ax.set_yscale('log')
 
     plt.xlabel('Knot Count')
-    plt.ylabel('Mean Error (5 Folds)')
+    plt.ylabel('Cross Validation MSE (5 Folds; Log Scaled)')
     plt.title('Best Knot Count Using 5-Fold Cross Validation')
     
     output_filepath_kfold = os.path.abspath(os.path.join(current_path, '..', '..', 'output', '5fold_cross_validation_splines.png'))
@@ -127,10 +127,10 @@ if __name__ == '__main__':
     plot_x = np.arange(5, len(mean_errors) + 5)
 
     ax = sns.lineplot(x = plot_x[-10:], y = mean_errors[-10:])
-    ax.set_yscale('log')
+    ax.set_yscale('linear')
 
     plt.xlabel('Knot Count')
-    plt.ylabel('Mean Error (5 Folds)')
+    plt.ylabel('Cross Validation MSE (5 Folds)')
     plt.title('Best Knot Count Using 5-Fold Cross Validation')
     
     output_filepath_kfold = os.path.abspath(os.path.join(current_path, '..', '..', 'output', '5fold_cross_validation_splines_final_10.png'))
