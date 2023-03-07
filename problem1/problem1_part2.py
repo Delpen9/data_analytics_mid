@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 
 # Modeling
 from sklearn.svm import SVC
+from sklearn.decomposition import PCA
 
 def b_spline_coefficients(
     x : np.ndarray,
@@ -93,3 +94,26 @@ if __name__ == '__main__':
     # =====================================================
     # Part B
     # =====================================================
+    pca = PCA(n_components = 5)
+    x_train_pca = pca.fit_transform(x_train)
+
+    explain_variance_data = pca.explained_variance_ratio_.cumsum()
+
+    print(f'The explained variance of the data after each added component: \n{explain_variance_data}')
+
+    pca = PCA(n_components = 3)
+    x_train_pca = pca.fit_transform(x_train)
+    x_test_pca = pca.fit_transform(x_test)
+
+    # Training    
+    svm = SVC(kernel = 'linear')
+    svm.fit(x_train_pca, y_train)
+
+    # Model Evaluation
+    y_pred = svm.predict(x_test_pca)
+
+    accuracy = accuracy_score(y_test, y_pred)
+    confusion = confusion_matrix(y_test, y_pred)
+
+    print(fr'The accuracy of the model with fPCA is: {accuracy}')
+    print(f'The confusion matrix for the model with fPCA is: \n{confusion}')
