@@ -3,7 +3,7 @@ from scipy.linalg import khatri_rao
 
 def cp_decomposition(
     X : np.ndarray,
-    rank : int = 3,
+    rank : int = 5,
     max_iteration : int = 50
 ) -> tuple[np.ndarray, list[np.ndarray, np.ndarray, np.ndarray]]:
     '''
@@ -32,7 +32,7 @@ def cp_decomposition(
             X_k = np.moveaxis(X, k, 0)
             X_k = X_k.reshape((X.shape[k], -1))
             
-            # Get updates factor matrix
+            # Get updates of factor matrices
             khatri_rao_product = khatri_rao(factors[before], factors[after])
             inverse = np.linalg.pinv(V.T @ V)
             factors[k] = X_k @ khatri_rao_product @ inverse @ V.T
@@ -41,6 +41,6 @@ def cp_decomposition(
 
     # Get the 1st mode unfolding and refold
     core_1st_mode = A1 @ khatri_rao(A2, A3).T
-    core = core_1st_mode.reshape(21, 21, 10)
+    core = core_1st_mode.reshape(X.shape)
 
     return core, factors

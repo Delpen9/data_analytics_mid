@@ -10,7 +10,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # Imports
-from CPDecomposition import cp_decomposition
+from CURDecomposition import cur_decomposition
 from AIC import relative_error, AIC, RSS
 
 if __name__ == '__main__':
@@ -18,16 +18,15 @@ if __name__ == '__main__':
     matlab_file_path = os.path.abspath(os.path.join(current_path, '..', '..', 'data', 'heat.mat'))
 
     X = scipy.io.loadmat(matlab_file_path)['X'][0][0][0]
-    N = 50
-    
+
     ranks = np.arange(1, 20, 1)
 
     relative_errors = []
     aic_scores = []
     for rank in ranks:
-        core, factors = cp_decomposition(X, rank, N)
-        relative_errors.append(relative_error(X, core))
-        aic_scores.append(AIC(X, core, rank))
+        X_reconstructed, factors = cur_decomposition(X, rank, rank)
+        relative_errors.append(relative_error(X, X_reconstructed))
+        aic_scores.append(AIC(X, X_reconstructed, rank))
 
     relative_errors = np.array(relative_errors)
     aic_scores = np.array(aic_scores)
@@ -41,7 +40,7 @@ if __name__ == '__main__':
     plt.title('Reconstruction Rank Vs. Relative Error')
     plt.xticks(ranks)
     
-    output_filepath_kfold = os.path.abspath(os.path.join(current_path, '..', '..', 'output', 'reconstruction_rank_vs_relative_error.png'))
+    output_filepath_kfold = os.path.abspath(os.path.join(current_path, '..', '..', 'output', 'cur_decomposition_reconstruction_rank_vs_relative_error.png'))
     plt.savefig(output_filepath_kfold)
 
     plt.clf()
@@ -52,13 +51,14 @@ if __name__ == '__main__':
     # Plotting: Plot 2
     # =================
     ax = sns.lineplot(x = ranks, y = aic_scores)
+    ax.set_ylim([-30000, 5000])
 
     plt.xlabel('Rank of Reconstructed Tensor')
     plt.ylabel('AIC')
     plt.title('Reconstruction Rank Vs. AIC')
     plt.xticks(ranks)
     
-    output_filepath_kfold = os.path.abspath(os.path.join(current_path, '..', '..', 'output', 'reconstruction_rank_vs_AIC.png'))
+    output_filepath_kfold = os.path.abspath(os.path.join(current_path, '..', '..', 'output', 'cur_decomposition_reconstruction_rank_vs_AIC.png'))
     plt.savefig(output_filepath_kfold)
 
     plt.clf()
