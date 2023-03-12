@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 # Imports
-from loss_function import loss_function
+from loss_function import loss_function, _gradient
 
 if __name__ == '__main__':
     current_path = os.path.abspath(__file__)
@@ -15,4 +15,6 @@ if __name__ == '__main__':
     w = np.array([0.4, 4])
     alpha = 1
     beta = 5
-    
+
+    print(loss_function(w, alpha, beta, x, y))
+    print(_gradient(w, alpha, beta, x, y))
