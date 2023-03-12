@@ -17,20 +17,21 @@ def _partial_w(
 ) -> float:
     '''
     '''
-    _z_i1 = np.expand_dims(_sigma(alpha * x), axis = 0).T
-    _z_i2 = np.expand_dims(_sigma(beta * x), axis = 0).T
-    _z = np.hstack((_z_i1, _z_i2))
+    _z_i1 = w[0] * np.expand_dims(_sigma(alpha * x), axis = 0).T
+    _z_i2 = w[1] * np.expand_dims(_sigma(beta * x), axis = 0).T
+    inside_sigma = np.sum(np.hstack((_z_i1, _z_i2)), axis = 0)
 
-    inside_sigma = np.multiply(_z.T, w[:, np.newaxis]).T
+    y_new = np.vstack((y, y)).T
 
     dLdw = 2 *\
-            _sigma(inside_sigma) *\
+            (y_new - _sigma(inside_sigma)) *\
             _sigma(inside_sigma) *\
             [1 - _sigma(inside_sigma)] *\
-            np.sum(_z, axis = 0)
+            inside_sigma
 
-    I, J, K = dLdw.shape
-    dLdw = dLdw.reshape((J, K)) 
+    I, J = dLdw.shape
+
+    dLdw = dLdw.reshape((I, J)) 
 
     dLdw = -np.sum(dLdw, axis = 0)
 
@@ -45,21 +46,17 @@ def _partial_alpha(
 ) -> float:
     '''
     '''
-    _z_i1 = np.expand_dims(_sigma(alpha * x), axis = 0).T
-    _z_i2 = np.expand_dims(_sigma(beta * x), axis = 0).T
-    _z = np.hstack((_z_i1, _z_i2))
-
-    w = np.expand_dims(w, axis = 0)
-
-    inside_sigma = (w @ _z.T).flatten()
+    _z_i1 = w[0] * np.expand_dims(_sigma(alpha * x), axis = 0).T
+    _z_i2 = w[1] * np.expand_dims(_sigma(beta * x), axis = 0).T
+    inside_sigma = np.sum(np.hstack((_z_i1, _z_i2)), axis = 1)
 
     dLda = 2 *\
-            _sigma(inside_sigma) *\
+            (y - _sigma(inside_sigma)) *\
             _sigma(inside_sigma) *\
             [1 - _sigma(inside_sigma)] *\
-            w[0][0] *\
-            _sigma(alpha * _z_i1.flatten()) *\
-            [1 - _sigma(alpha * _z_i1.flatten())] *\
+            w[0] *\
+            _sigma(alpha * x) *\
+            [1 - _sigma(alpha * x)] *\
             x
 
     dLda = -np.sum(dLda)
@@ -74,21 +71,17 @@ def _partial_beta(
 ) -> float:
     '''
     '''
-    _z_i1 = np.expand_dims(_sigma(alpha * x), axis = 0).T
-    _z_i2 = np.expand_dims(_sigma(beta * x), axis = 0).T
-    _z = np.hstack((_z_i1, _z_i2))
-
-    w = np.expand_dims(w, axis = 0)
-
-    inside_sigma = (w @ _z.T).flatten()
+    _z_i1 = w[0] * np.expand_dims(_sigma(alpha * x), axis = 0).T
+    _z_i2 = w[1] * np.expand_dims(_sigma(beta * x), axis = 0).T
+    inside_sigma = np.sum(np.hstack((_z_i1, _z_i2)), axis = 1)
 
     dLdb = 2 *\
-            _sigma(inside_sigma) *\
+            (y - _sigma(inside_sigma)) *\
             _sigma(inside_sigma) *\
             [1 - _sigma(inside_sigma)] *\
-            w[0][1] *\
-            _sigma(beta * _z_i2.flatten()) *\
-            [1 - _sigma(beta * _z_i2.flatten())] *\
+            w[1] *\
+            _sigma(beta * x) *\
+            [1 - _sigma(beta * x)] *\
             x
 
     dLdb = -np.sum(dLdb)
@@ -119,15 +112,11 @@ def loss_function(
 ) -> np.ndarray:
     '''
     '''
-    _z_i1 = np.expand_dims(_sigma(alpha * x), axis = 0).T
-    _z_i2 = np.expand_dims(_sigma(beta * x), axis = 0).T
-    _z = np.hstack((_z_i1, _z_i2))
-
-    w = np.expand_dims(w, axis = 0)
-
-    inside_sigma = (w @ _z.T).flatten()
+    _z_i1 = w[0] * np.expand_dims(_sigma(alpha * x), axis = 0).T
+    _z_i2 = w[1] * np.expand_dims(_sigma(beta * x), axis = 0).T
+    inside_sigma = np.sum(np.hstack((_z_i1, _z_i2)), axis = 1)
 
     loss_values = (y - _sigma(inside_sigma))**2
 
-    _loss = np.sum(loss_values)
+    _loss = -np.sum(loss_values)
     return _loss
