@@ -21,18 +21,20 @@ def _partial_w(
     _z_i2 = np.expand_dims(_sigma(beta * x), axis = 0).T
     _z = np.hstack((_z_i1, _z_i2))
 
-    w = np.expand_dims(w, axis = 0)
-
-    inside_sigma = (w @ _z.T).flatten()
+    inside_sigma = np.multiply(_z.T, w[:, np.newaxis]).T
 
     dLdw = 2 *\
             _sigma(inside_sigma) *\
             _sigma(inside_sigma) *\
             [1 - _sigma(inside_sigma)] *\
-            np.sum(_z, axis = 1).flatten()
-    
-    dLdw = -np.sum(dLdw)
-    return dLdw
+            np.sum(_z, axis = 0)
+
+    I, J, K = dLdw.shape
+    dLdw = dLdw.reshape((J, K)) 
+
+    dLdw = -np.sum(dLdw, axis = 0)
+
+    return tuple(dLdw)
 
 def _partial_alpha(
     w : np.ndarray,
@@ -102,7 +104,7 @@ def _gradient(
     '''
     '''
     gradient = np.array([
-        _partial_w(w, alpha, beta, x, y),
+        *_partial_w(w, alpha, beta, x, y),
         _partial_alpha(w, alpha, beta, x, y),
         _partial_beta(w, alpha, beta, x, y)
     ])
