@@ -2,6 +2,10 @@
 import os
 import numpy as np
 
+# plotting
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 # Imports
 from loss_function import loss_function, _gradient
 
@@ -48,13 +52,16 @@ def gradient_descent(
     beta : float,
     x : np.ndarray,
     y : np.ndarray,
-    tolerance : float = 1e-2
+    tolerance : float = 1e-1
 ) -> tuple[float, float, np.ndarray, np.ndarray, np.ndarray]:
     '''
     '''
+    loss_history = []
+
     params = np.array([*w, alpha, beta])
 
     loss = loss_function(w, alpha, beta, x, y)
+    loss_history.append(loss)
     gradient = _gradient(w, alpha, beta, x, y)
 
     while (np.dot(gradient.T, gradient) > tolerance):
@@ -67,9 +74,10 @@ def gradient_descent(
         loss_old = loss
         new_w = np.array([params[0], params[1]])
         loss = loss_function(new_w, params[2], params[3], x, y)
+        loss_history.append(loss)
 
         print(np.dot(gradient.T, gradient))
-    return params
+    return params, loss_history
 
 if __name__ == '__main__':
     current_path = os.path.abspath(__file__)
@@ -82,4 +90,21 @@ if __name__ == '__main__':
     alpha = 1
     beta = 5
 
-    best_params = gradient_descent(w, alpha, beta, x, y)
+    best_params, loss_history = gradient_descent(w, alpha, beta, x, y)
+
+    # Plotting: Plot 1
+    # =================
+    iterations = np.arange(1, len(loss_history) + 1)
+
+    ax = sns.lineplot(x = iterations, y = loss_history)
+
+    plt.xlabel('Iteration')
+    plt.ylabel('Loss Function')
+    plt.title('Loss Function Vs. Iteration for Gradient Descent')
+    
+    output_filepath = os.path.abspath(os.path.join(current_path, '..', '..', 'output', 'gradient_descent.png'))
+    plt.savefig(output_filepath)
+
+    plt.clf()
+    plt.cla()
+    # =================
