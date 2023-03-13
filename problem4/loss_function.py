@@ -120,3 +120,21 @@ def loss_function(
 
     _loss = -np.sum(loss_values)
     return _loss
+
+def right_term(
+    w0 : float,
+    w1 : float,
+    alpha : float,
+    beta : float,
+    x : np.ndarray
+) -> np.ndarray:
+    '''
+    '''
+    _z_i1 = w0 * np.expand_dims(_sigma(alpha * x), axis = 0).T
+    _z_i2 = w1 * np.expand_dims(_sigma(beta * x), axis = 0).T
+    inside_sigma = np.sum(np.hstack((_z_i1, _z_i2)), axis = 1)
+
+    loss_values = _sigma(inside_sigma)
+
+    _loss = -np.sum(loss_values)
+    return _loss
